@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  neo4jdb:
+    image: neo4j:latest
+    container_name: neo4jdb
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      - NEO4J_AUTH=${NEO4J_USER}/${NEO4J_PASSWORD}
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+      - neo4j_import:/var/lib/neo4j/import
+
+  neo4j-seed:
+    image: neo4j:latest
+    container_name: neo4j-seed
+    depends_on:
+      - neo4jdb
+    entrypoint: ["/bin/sh", "/var/lib/neo4j/import/seed_neo4j.sh"]
+    volumes:
+      - neo4j_import:/var/lib/neo4j/import
+      - ./moviesDb_cypher:/var/lib/neo4j/import/moviesDb_cypher:ro
+      - ./seed_neo4j.sh:/var/lib/neo4j/import/seed_neo4j.sh:ro
+    env_file:
+      - .env
+volumes:
+  neo4j_data:
+  neo4j_logs:
+  neo4j_import:
