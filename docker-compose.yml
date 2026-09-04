@@ -1,20 +1,22 @@
 version: '3.8'
 services:
   neo4jdb:
-    image: neo4j:latest
+    image: neo4j:2026.07.1-enterprise
     container_name: neo4jdb
+    environment:
+      NEO4J_ACCEPT_LICENSE_AGREEMENT: "yes"
+      NEO4J_AUTH: neo4j/12345678
+      NEO4J_PLUGINS: '["apoc"]'
+      apoc.export.file.enabled: "true"
     ports:
       - "7474:7474"
       - "7687:7687"
-    environment:
-      - NEO4J_AUTH=${NEO4J_USER}/${NEO4J_PASSWORD}
     volumes:
       - neo4j_data:/data
       - neo4j_logs:/logs
       - neo4j_import:/var/lib/neo4j/import
-
   neo4j-seed:
-    image: neo4j:latest
+    image: neo4j:2026.07.1-enterprise
     container_name: neo4j-seed
     depends_on:
       - neo4jdb
@@ -22,6 +24,7 @@ services:
     volumes:
       - neo4j_import:/var/lib/neo4j/import
       - ./moviesDb_cypher:/var/lib/neo4j/import/moviesDb_cypher:ro
+      - ./fraud-demo.cypher:/var/lib/neo4j/import/fraud-demo.cypher:ro
       - ./seed_neo4j.sh:/var/lib/neo4j/import/seed_neo4j.sh:ro
     env_file:
       - .env
